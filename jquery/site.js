@@ -21,6 +21,7 @@ $(document).ready(function () {
             count_items_left++;
             checkItemsLeft();
             if(tab === 'active') $('#changeall').removeClass('v-hidden');
+            if(task.length !== 0) $('.footer').show();
         }
     });
     
