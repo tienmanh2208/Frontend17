@@ -125,7 +125,7 @@ function removeATask(id){
     var id_e = getId(id);
 
     removeAElement(task, id_e);
-    document.getElementById(id_e).parentNode.removeChild(document.getElementById(id_e));
+    document.getElementById('content').removeChild(document.getElementById(id_e));
 }
 
 /**

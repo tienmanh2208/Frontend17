@@ -6,7 +6,7 @@ var task_html = '<div class="flex-row-nowrap newtask mg-t-10 border-square-rad">
     '               <div class="col2 inputcontent input">\n' +
     '                    <input class="w100 h90 fs-20 doingtaskcontent bgc-white border-w-0" type="text" disabled>\n' +
     '               </div>\n' +
-    '               <div class="ver-a-50 hover_d">\n' +
+    '               <div class="ver-a-50 hover_d v-hidden">\n' +
     '                    <i class="fas fa-times fs-20 delete icon_delete"></i>\n' +
     '               </div>' +
     '           </div>';
@@ -20,6 +20,7 @@ $(document).ready(function () {
             setInfo();
             count_items_left++;
             checkItemsLeft();
+            if(tab === 'active') $('#changeall').removeClass('v-hidden');
         }
     });
     
