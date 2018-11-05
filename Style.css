@@ -1,0 +1,130 @@
+.title {
+    color: steelblue;
+    font-size: 70pt;
+    text-align: center;
+}
+
+.content {
+    max-width: 700px;
+    min-width: 300px;
+    margin: auto;
+}
+
+.footer {
+    max-width: 700px;
+    min-width: 300px;
+    margin: auto;
+    height: 45px;
+}
+
+/*Flex*/
+.flex-row-nowrap {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+/*Float*/
+.float-right { float: right; }
+.float-left { float: left; }
+
+.ab {
+    position: absolute;
+    top: inherit;
+}
+
+/*border*/
+.border-square-rad {
+    border-style: solid;
+    border-color: #dddddd;
+    border-width: thin;
+    border-radius: 30px;
+}
+
+.border-square-rad-light {
+    border-style: solid;
+    border-color: #dddddd;
+    border-width: thin;
+    border-radius: 8px;
+}
+
+.border-top {
+    border-top-style: solid;
+    border-top-color: orangered;
+    border-top-width: thick;
+}
+
+.border-bottom {
+    border-bottom-style: solid;
+    border-bottom-width: thick;
+    border-bottom-color: orangered;
+}
+
+.border-square {
+    border-style: solid;
+    border-width: thin;
+}
+
+.border-w-0 { border-width: 0px; }
+.border-c-black { border-color: black; }
+.border-c-gray { border-color: gray; }
+
+.col1 {
+    width: 70px;
+    height: 60px;
+}
+
+.col1_sm {
+    width: 70px;
+    height: 50px;
+}
+
+.col2 {
+    width: 90%;
+}
+
+/*Width*/
+.w100 { width: 100%; }
+.w10 { width: 10%; }
+.w90 { width: 90%; }
+
+/*Height*/
+.h90 { height: 90%; }
+
+/*Margin*/
+.mg-r-10 { margin-right: 10px; }
+.mg-t-10 { margin-top: 10px; }
+.mg-l-10 { margin-left: 10px; }
+.mg-b-20 { margin-bottom: 20px; }
+
+/*Padding*/
+.pd-2 { padding: 2px; }
+.pd-r-30 { padding-right: 30px; }
+.pd-t-10 { padding-top: 10px; }
+.pd-l-20 { padding-left: 20px; }
+
+/*Text*/
+.ta-center { text-align: center; }
+.fs-15 { font-size: 15pt; }
+.fs-20 { font-size: 20pt; }
+.fs-25 { font-size: 25pt; }
+.fs-35 { font-size: 35pt; }
+.fc-green { color: limegreen; }
+.fc-gray { color: lightgray; }
+.ver-a-60 { align-items: center; line-height: 60px; }
+.ver-a-50 { align-items: center; line-height: 50px; }
+.f-s { text-decoration: line-through; color: #999999; }
+
+/*Color*/
+.bgc-white { background-color: white; }
+.fc-red { color: red; }
+
+/*Visibility*/
+.v-hidden { visibility: hidden; }
+.v-visible { visibility: visible; }
+.display-none { display: none; }

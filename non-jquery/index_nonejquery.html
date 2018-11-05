@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Todo List - None jquery</title>
+    <link rel="stylesheet" href="../Style.css" type="text/css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+</head>
+<body>
+<div class="title mg-b-20">todos</div>
+<div class="content flex-col">
+    <div class="flex-row-nowrap border-bottom">
+        <div class="col1 ta-center fs-25 ver-a-60" id="changeAllDiv"><i id="changeall" class="far fa-check-square"></i></div>
+        <div class="col2 mg-l-10" id="newtaskdiv">
+            <input id="newtask" class="w100 h90 fs-25 bgc-white border-w-0 pd-l-20" style="display: inline-block" type="text" placeholder="What needs to be done">
+        </div>
+    </div>
+    <div id="content"></div>
+</div>
+<div class="footer border-top mg-t-10" id="footer">
+    <div id="count" class="ab pd-t-10 pd-l-30 fs-15 pd-l-20">0 Left</div>
+    <div class="flex-row-nowrap pd-t-10">
+        <div id="all" class="mg-r-10 border-bottom pd-2">All</div>
+        <div id="active" class="mg-r-10 border-square-rad-light pd-2">Active</div>
+        <div id="completed" class="border-square pd-2 border-square-rad-light">Completed</div>
+    </div>
+</div>
+<script src="site_nonejquery.js"></script>
+</body>
+</html>
