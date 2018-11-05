@@ -103,8 +103,7 @@ function removeATask(id){
     var id_e = getId(id);
 
     removeAElement(task, id_e);
-    // $('#' + id_e).remove();
-    document.getElementById('#' + id_e).parentNode.removeChild(document.getElementById('#' + id_e));
+    document.getElementById(id_e).parentNode.removeChild(document.getElementById(id_e));
 }
 
 /**
@@ -113,7 +112,6 @@ function removeATask(id){
 function checkItemsLeft(){
     // if(count_items_left == 0){ $('.footer').hide(); }
     document.getElementById('count').innerText = count_items_left + ' items';
-    // $('#count').text(count_items_left + ' items');
 }
 
 /**
