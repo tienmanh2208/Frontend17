@@ -199,24 +199,16 @@ function setNewIdForTask(new_id, contentOfTask){
 
     // double click input
     document.getElementById(new_id + '_inputcontent').ondblclick = function (ev) {
-        if(lastEdit != 0) document.getElementById(lastEdit + '_doingtask').setAttribute('disabled', 'disabled');
+        if(lastEdit != 0) {
+            // document.getElementById(lastEdit + '_doingtask').setAttribute('disabled', 'disabled');
+            updateTask(lastEdit + '_doingtask');
+        }
         document.getElementById(event.target.id).removeAttribute('disabled');
         lastEdit = getId(event.target.id);
     };
 
     document.getElementById(new_id + '_doingtask').addEventListener("keypress", function(event) {
-        if (event.keyCode == 13) {
-            if(document.getElementById(event.target.id).value === ''){
-                var id = getId(event.target.id);
-                if(getItem(id).state === 'active') count_items_left--;
-                checkItemsLeft();
-
-                removeATask(event.target.id);
-            } else {
-                document.getElementById(event.target.id).setAttribute('disabled', 'disabled');
-                lastEdit = 0;
-            }
-        }
+        if (event.keyCode == 13) { updateTask(event.target.id); }
     });
 
     document.getElementById(new_id + '_deletedoingtask').onclick = function (ev) {
@@ -227,6 +219,19 @@ function setNewIdForTask(new_id, contentOfTask){
 
         removeATask(event.target.id);
     };
+}
+
+function updateTask(fullid) {
+    if(document.getElementById(fullid).value === ''){
+        var id = getId(fullid);
+        if(getItem(id).state === 'active') count_items_left--;
+        checkItemsLeft();
+
+        removeATask(fullid);
+    } else {
+        document.getElementById(fullid).setAttribute('disabled', 'disabled');
+        lastEdit = 0;
+    }
 }
 
 /**

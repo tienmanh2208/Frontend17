@@ -6,7 +6,7 @@ var task_html = '<div class="flex-row-nowrap newtask mg-t-10 border-square-rad">
     '               <div class="col2 inputcontent input">\n' +
     '                    <input class="w100 h90 fs-20 doingtaskcontent bgc-white border-w-0" type="text" disabled>\n' +
     '               </div>\n' +
-    '               <div class="ver-a-50 hover_d v-hidden">\n' +
+    '               <div class="ver-a-50 hover_d">\n' +
     '                    <i class="fas fa-times fs-20 delete icon_delete"></i>\n' +
     '               </div>' +
     '           </div>';
@@ -93,7 +93,7 @@ function setInfo(){
 
         if(!isVisible) {
             isVisible = true;
-            $('.footer').slideDown();
+            $('.footer').show();
         }
 
         setNewIdForTask(count, $('#newtask').val());
@@ -180,7 +180,7 @@ function changeStateOfTask(id){
  * @param new_id
  * @param contentOfTask
  */
-function setNewIdForTask(new_id, contentOfTask){
+function setNewIdForTask(new_id, contentOfTask, callback){
     $('.newtask').attr('id', new_id).removeClass('newtask');
     $('.doingtaskcontent').attr('id',new_id + '_doingtask');
     $('#' + new_id + '_doingtask').removeClass('doingtaskcontent').val(contentOfTask);
@@ -203,25 +203,17 @@ function setNewIdForTask(new_id, contentOfTask){
 
     // double click input
     $('.input').dblclick(function () {
-        if(lastEdit != 0) $('#' + lastEdit + '_doingtask').attr('disabled', 'disabled');
+        if(lastEdit != 0) {
+            // $('#' + lastEdit + '_doingtask').attr('disabled', 'disabled');
+            updateTask(lastEdit + '_doingtask');
+        }
         lastEdit = getId(event.target.id);
         $('#' + event.target.id).removeAttr('disabled');
     });
 
     $('.input').keyup(function(e){
         if(e.keyCode === 13) { $(this).trigger("enterKey"); }
-    }).bind('enterKey', function () {
-        if($('#' + event.target.id).val() == ''){
-            var id = getId(event.target.id);
-            if(getItem(id).state === 'active') count_items_left--;
-            checkItemsLeft();
-
-            removeATask(event.target.id);
-        } else {
-            $('#' + event.target.id).attr('disabled', 'disabled');
-            lastEdit = 0;
-        }
-    });
+    }).bind('enterKey', function(){updateTask(event.target.id)});
 
     $('#' + new_id + '_deletedoingtask').click(function () {
         var id = getId(event.target.id);
@@ -231,6 +223,21 @@ function setNewIdForTask(new_id, contentOfTask){
 
         removeATask(event.target.id);
     });
+
+    if(callback) { callback; }
+}
+
+function updateTask(fullid){
+    if($('#' + fullid).val() == ''){
+        var id = getId(fullid);
+        if(getItem(id).state === 'active') count_items_left--;
+        checkItemsLeft();
+
+        removeATask(fullid);
+    } else {
+        $('#' + fullid).attr('disabled', 'disabled');
+        lastEdit = 0;
+    }
 }
 
 /**
