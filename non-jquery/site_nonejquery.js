@@ -62,6 +62,8 @@ window.onload = function (ev) {
                 removeATask(task[i].id + '_abc');
             }
         }
+
+        if(task.length === 0) { isVisible = false; document.getElementById('footer').classList.add('v-hidden'); }
     }
 };
 
@@ -218,6 +220,8 @@ function setNewIdForTask(new_id, contentOfTask){
         checkItemsLeft();
 
         removeATask(event.target.id);
+
+        if(task.length === 0) { document.getElementById('footer').classList.add('v-hidden'); isVisible = false; }
     };
 }
 

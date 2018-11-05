@@ -72,6 +72,8 @@ $(document).ready(function () {
                 removeATask(task[i].id + '_abc');
             }
         }
+
+        if(task.length === 0) { $('.footer').hide(); isVisible = false; }
     });
 });
 
@@ -222,6 +224,8 @@ function setNewIdForTask(new_id, contentOfTask, callback){
         checkItemsLeft();
 
         removeATask(event.target.id);
+
+        if(task.length === 0) { $('.footer').hide(); isVisible = false; }
     });
 
     if(callback) { callback; }
