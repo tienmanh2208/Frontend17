@@ -1,4 +1,4 @@
-var count = 0, count_items_left = 0, isVisible = false; // footer
+var count = 0, count_items_left = 0, isVisible = false, lastEdit = 0; // footer
 var tab = 'all' /*all, active, completed */, task = [];
 
 var task_html = '<div class="flex-row-nowrap newtask mg-t-10 border-square-rad">\n' +
@@ -42,7 +42,6 @@ $(document).ready(function () {
     });
 
     $('#changeall').click(function () {
-        console.log(tab);
         if(count_items_left === 0) {
             count_items_left = task.length;
             for(var i = 0 ; i < task.length; ++i){
@@ -188,7 +187,11 @@ function setNewIdForTask(new_id, contentOfTask){
     })
 
     // double click input
-    $('.input').dblclick(function () { $('#' + event.target.id).removeAttr('disabled'); });
+    $('.input').dblclick(function () {
+        if(lastEdit != 0) $('#' + lastEdit + '_doingtask').attr('disabled', 'disabled');
+        lastEdit = getId(event.target.id);
+        $('#' + event.target.id).removeAttr('disabled');
+    });
 
     $('.input').keyup(function(e){
         if(e.keyCode === 13)
@@ -196,7 +199,8 @@ function setNewIdForTask(new_id, contentOfTask){
             $(this).trigger("enterKey");
         }
     }).bind('enterKey', function () {
-        $('#' + event.target.id).attr('disabled', 'disabled')
+        $('#' + event.target.id).attr('disabled', 'disabled');
+        lastEdit = 0;
     });
 
     $('#' + new_id + '_deletedoingtask').click(function () {

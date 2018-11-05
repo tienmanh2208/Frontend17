@@ -1,4 +1,4 @@
-var count = 0, count_items_left = 0, isVisible = false; // footer
+var count = 0, count_items_left = 0, isVisible = false, lastEdit = 0 ; // footer
 var tab = 'all' /*all, active, completed */, task = [];
 
 window.onload = function (ev) {
@@ -179,13 +179,16 @@ function setNewIdForTask(new_id, contentOfTask){
     };
 
     // double click input
-    document.getElementById(new_id + '_doingtask').ondblclick = function (ev) {
+    document.getElementById(new_id + '_inputcontent').ondblclick = function (ev) {
+        if(lastEdit != 0) document.getElementById(lastEdit + '_doingtask').setAttribute('disabled', 'disabled');
         document.getElementById(event.target.id).removeAttribute('disabled');
+        lastEdit = getId(event.target.id);
     };
 
     document.getElementById(new_id + '_doingtask').addEventListener("keypress", function(event) {
         if (event.keyCode == 13) {
             document.getElementById(event.target.id).setAttribute('disabled', 'disabled');
+            lastEdit = 0;
         }
     });
 
