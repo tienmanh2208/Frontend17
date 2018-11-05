@@ -16,48 +16,59 @@ window.onload = function (ev) {
     document.getElementById('all').onclick = function (ev2) {
         reloadAllTask('content');
         changeBorder('all');
+        document.getElementById('changeall').classList.remove('v-hidden');
     };
 
     document.getElementById('active').onclick = function (ev2) {
         reloadAllDoingTask('content');
         changeBorder('active');
+
+        if(count_items_left === 0) document.getElementById('changeall').classList.add('v-hidden');
+        else document.getElementById('changeall').classList.remove('v-hidden');
     };
 
     document.getElementById('completed').onclick = function (ev2) {
         reloadAllTaskIsDone('content');
         changeBorder('completed');
+
+        if(count_items_left === task.length) document.getElementById('changeall').classList.add('v-hidden');
+        else document.getElementById('changeall').classList.remove('v-hidden');
     };
 
     document.getElementById('changeall').onclick = function (ev2) {
         if(count_items_left === 0) {
             count_items_left = task.length;
             for(var i = 0 ; i < task.length; ++i){
-                task[i].state = 'active'
+                task[i].state = 'active';
             }
+
+            if(tab === 'completed') document.getElementById('changeall').classList.add('v-hidden');
         } else {
             count_items_left = 0;
             for(var i = 0 ; i < task.length; ++i){
                 task[i].state = 'completed'
             }
-        }
 
+            if(tab === 'active') document.getElementById('changeall').classList.add('v-hidden');
+        }
         if(tab === 'all') reloadAllTask('content');
         else if(tab === 'active') reloadAllDoingTask('content');
         else if(tab === 'completed') reloadAllTaskIsDone('content');
     };
+
+    document.getElementById('clear').onclick = function (ev2) {
+        for(var i = task.length-1 ; i >= 0; --i){
+            if(task[i].state === 'completed'){
+                removeATask(task[i].id + '_abc');
+            }
+        }
+    }
 };
 
 /**
  * this function sets info for new task is added
  */
 function setInfo(){
-    document.getElementById('content').appendChild(creatingNewElement());
-
-    if(!isVisible) {
-        isVisible = true;
-        document.getElementById('footer').classList.remove('v-hidden');
-    }
-
     count++;
     var new_task = {
         id: count,
@@ -67,7 +78,16 @@ function setInfo(){
 
     task.push(new_task);
 
-    setNewIdForTask(count, new_task.content);
+    if(tab !== 'completed'){
+        document.getElementById('content').appendChild(creatingNewElement());
+
+        if(!isVisible) {
+            isVisible = true;
+            document.getElementById('footer').classList.remove('v-hidden');
+        }
+
+        setNewIdForTask(count, new_task.content);
+    }
 
     document.getElementById('newtask').value = '';
 }
@@ -143,8 +163,7 @@ function changeStateOfTask(id){
         checkItemsLeft();
     }
 
-    if(tab === 'all') reloadAllTask('content');
-    else if(tab === 'active') reloadAllDoingTask('content');
+    if(tab === 'active') reloadAllDoingTask('content');
     else if(tab === 'completed') reloadAllTaskIsDone('content');
 }
 
@@ -187,8 +206,16 @@ function setNewIdForTask(new_id, contentOfTask){
 
     document.getElementById(new_id + '_doingtask').addEventListener("keypress", function(event) {
         if (event.keyCode == 13) {
-            document.getElementById(event.target.id).setAttribute('disabled', 'disabled');
-            lastEdit = 0;
+            if(document.getElementById(event.target.id).value === ''){
+                var id = getId(event.target.id);
+                if(getItem(id).state === 'active') count_items_left--;
+                checkItemsLeft();
+
+                removeATask(event.target.id);
+            } else {
+                document.getElementById(event.target.id).setAttribute('disabled', 'disabled');
+                lastEdit = 0;
+            }
         }
     });
 
@@ -251,7 +278,7 @@ function reloadAllTaskIsDone(id){
             setNewIdForTask(task[i].id, task[i].content);
             document.getElementById(task[i].id + '_doingtask').classList.add('f-s');
             document.getElementById(task[i].id + '_iconcheck_div').classList.remove('fc-gray');
-            document.getElementById(task[i].id + '_iconcheck_div').classList.remove('fc-green');
+            document.getElementById(task[i].id + '_iconcheck_div').classList.add('fc-green');
         }
     }
 

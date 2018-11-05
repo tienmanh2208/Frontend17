@@ -14,10 +14,7 @@ var task_html = '<div class="flex-row-nowrap newtask mg-t-10 border-square-rad">
 $(document).ready(function () {
     $('.footer').hide();
     $('#newtask').keyup(function(e){
-        if(e.keyCode === 13)
-        {
-            $(this).trigger("enterKey");
-        }
+        if(e.keyCode === 13) { $(this).trigger("enterKey"); }
     }).bind('enterKey', function () {
         if($('#newtask').val() !== ''){
             setInfo();
@@ -29,16 +26,23 @@ $(document).ready(function () {
     $('#all').click(function () {
         reloadAllTask('content');
         changeBorder('all');
+        $('#changeall').removeClass('v-hidden');
     });
 
     $('#active').click(function () {
         reloadAllDoingTask('content');
         changeBorder('active');
+
+        if(count_items_left === 0) $('#changeall').addClass('v-hidden');
+        else $('#changeall').removeClass('v-hidden');
     });
 
     $('#completed').click(function () {
         reloadAllTaskIsDone('content');
         changeBorder('completed');
+
+        if(count_items_left === task.length) $('#changeall').addClass('v-hidden');
+        else $('#changeall').removeClass('v-hidden');
     });
 
     $('#changeall').click(function () {
@@ -47,16 +51,27 @@ $(document).ready(function () {
             for(var i = 0 ; i < task.length; ++i){
                 task[i].state = 'active'
             }
+            if(tab === 'completed') $('#changeall').addClass('v-hidden');
         } else {
             count_items_left = 0;
             for(var i = 0 ; i < task.length; ++i){
-                task[i].state = 'completed'
+                 task[i].state = 'completed'
             }
+
+            if(tab === 'active') $('#changeall').addClass('v-hidden');
         }
 
         if(tab === 'all') reloadAllTask('content');
         else if(tab === 'active') reloadAllDoingTask('content');
         else if(tab === 'completed') reloadAllTaskIsDone('content');
+    });
+    
+    $('#clear').click(function () {
+        for(var i = task.length-1 ; i >= 0; --i){
+            if(task[i].state === 'completed'){
+                removeATask(task[i].id + '_abc');
+            }
+        }
     });
 });
 
@@ -64,13 +79,6 @@ $(document).ready(function () {
  * this function sets info for new task is added
  */
 function setInfo(){
-    $('#content').append(task_html);
-
-    if(!isVisible) {
-        isVisible = true;
-        $('.footer').slideDown();
-    }
-
     count++;
     var new_task = {
         id: count,
@@ -80,7 +88,16 @@ function setInfo(){
 
     task.push(new_task);
 
-    setNewIdForTask(count, $('#newtask').val());
+    if(tab != 'completed'){
+        $('#content').append(task_html);
+
+        if(!isVisible) {
+            isVisible = true;
+            $('.footer').slideDown();
+        }
+
+        setNewIdForTask(count, $('#newtask').val());
+    }
 
     $('#newtask').val('');
 }
@@ -102,9 +119,8 @@ function getId(id){
  */
 function removeAElement(array, id){
     for(var i = 0 ; i < array.length; ++i){
-        if(array[i].id === id){
+        if(array[i].id === id)
             array.splice(i, 1);
-        }
     }
 }
 
@@ -116,7 +132,7 @@ function removeATask(id){
     var id_e = getId(id);
 
     removeAElement(task, id_e);
-    $('#' + id_e).remove();
+    removeDivElement(id_e);
 }
 
 /**
@@ -155,9 +171,8 @@ function changeStateOfTask(id){
         checkItemsLeft();
     }
 
-    if(tab === 'all') reloadAllTask('content');
-    else if(tab === 'active') reloadAllDoingTask('content');
-    else if(tab === 'completed') reloadAllTaskIsDone('content');
+    if(tab === 'active') removeDivElement(id);
+    else if(tab === 'completed') removeDivElement(id);
 }
 
 /**
@@ -194,13 +209,18 @@ function setNewIdForTask(new_id, contentOfTask){
     });
 
     $('.input').keyup(function(e){
-        if(e.keyCode === 13)
-        {
-            $(this).trigger("enterKey");
-        }
+        if(e.keyCode === 13) { $(this).trigger("enterKey"); }
     }).bind('enterKey', function () {
-        $('#' + event.target.id).attr('disabled', 'disabled');
-        lastEdit = 0;
+        if($('#' + event.target.id).val() == ''){
+            var id = getId(event.target.id);
+            if(getItem(id).state === 'active') count_items_left--;
+            checkItemsLeft();
+
+            removeATask(event.target.id);
+        } else {
+            $('#' + event.target.id).attr('disabled', 'disabled');
+            lastEdit = 0;
+        }
     });
 
     $('#' + new_id + '_deletedoingtask').click(function () {
@@ -218,18 +238,20 @@ function setNewIdForTask(new_id, contentOfTask){
  * @param id tag of the div contain tasks
  */
 function reloadAllTask(id){
-    $('#' + id).slideUp().empty();
+    $('#' + id).slideUp(500, 'swing', function(){
+        $('#' + id).empty();
 
-    for(var i = 0; i < task.length; ++i){
-        $('#' + id).append(task_html);
-        setNewIdForTask(task[i].id, task[i].content);
-        if(task[i].state === 'completed'){
-            $('#' + task[i].id + '_doingtask').addClass('f-s');
-            $('#' + task[i].id + '_iconcheck_div').removeClass('fc-gray').addClass('fc-green');
+        for(var i = 0; i < task.length; ++i){
+            $('#' + id).append(task_html);
+            setNewIdForTask(task[i].id, task[i].content);
+            if(task[i].state === 'completed'){
+                $('#' + task[i].id + '_doingtask').addClass('f-s');
+                $('#' + task[i].id + '_iconcheck_div').removeClass('fc-gray').addClass('fc-green');
+            }
         }
-    }
-    checkItemsLeft();
-    $('#' + id).slideDown();
+        checkItemsLeft();
+        $('#' + id).slideDown();
+    });
 }
 
 /**
@@ -237,17 +259,19 @@ function reloadAllTask(id){
  * @param id
  */
 function reloadAllDoingTask(id){
-    $('#' + id).slideUp().empty();
+    $('#' + id).slideUp(500, 'swing', function() {
+        $('#' + id).empty();
 
-    for(var i = 0; i < task.length; ++i){
-        if(task[i].state === 'active'){
-            $('#' + id).append(task_html);
-            setNewIdForTask(task[i].id, task[i].content);
+        for(var i = 0; i < task.length; ++i){
+            if(task[i].state === 'active'){
+                $('#' + id).append(task_html);
+                setNewIdForTask(task[i].id, task[i].content);
+            }
         }
-    }
 
-    checkItemsLeft();
-    $('#' + id).slideDown();
+        checkItemsLeft();
+        $('#' + id).slideDown();
+    });
 }
 
 /**
@@ -255,19 +279,21 @@ function reloadAllDoingTask(id){
  * @param id
  */
 function reloadAllTaskIsDone(id){
-    $('#' + id).slideUp().empty();
+    $('#' + id).slideUp(500, 'swing', function(){
+        $('#' + id).empty();
 
-    for(var i = 0; i < task.length; ++i){
-        if(task[i].state === 'completed'){
-            $('#' + id).append(task_html);
-            setNewIdForTask(task[i].id, task[i].content);
-            $('#' + task[i].id + '_doingtask').addClass('f-s');
-            $('#' + task[i].id + '_iconcheck_div').removeClass('fc-gray').addClass('fc-green');
+        for(var i = 0; i < task.length; ++i){
+            if(task[i].state === 'completed'){
+                $('#' + id).append(task_html);
+                setNewIdForTask(task[i].id, task[i].content);
+                $('#' + task[i].id + '_doingtask').addClass('f-s');
+                $('#' + task[i].id + '_iconcheck_div').removeClass('fc-gray').addClass('fc-green');
+            }
         }
-    }
 
-    checkItemsLeft();
-    $('#' + id).slideDown();
+        checkItemsLeft();
+        $('#' + id).slideDown();
+    });
 }
 
 /**
@@ -283,3 +309,9 @@ function changeBorder(desTab){
         $('#' + desTab).removeClass('border-square-rad-light').addClass('border-bottom');
     }
 }
+
+/**
+ * this function removes the div has specified id
+ * @param id
+ */
+function removeDivElement(id) { $('#' + id).slideUp('fast', 'swing', function(){ $('#' + id).remove(); }); }
