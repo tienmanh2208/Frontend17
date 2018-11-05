@@ -10,6 +10,8 @@ window.onload = function (ev) {
                 count_items_left++;
                 checkItemsLeft();
             }
+
+            if(task.length !== 0) document.getElementById('changeall').classList.remove('v-hidden');
         }
     });
 
@@ -125,7 +127,7 @@ function removeATask(id){
     var id_e = getId(id);
 
     removeAElement(task, id_e);
-    document.getElementById('content').removeChild(document.getElementById(id_e));
+    if(tab !== 'active') document.getElementById('content').removeChild(document.getElementById(id_e));
 }
 
 /**
