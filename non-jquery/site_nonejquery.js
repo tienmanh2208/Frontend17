@@ -179,7 +179,7 @@ function changeStateOfTask(id){
 function setNewIdForTask(new_id, contentOfTask){
     document.getElementById('newtask_div').id = new_id;
     document.getElementById('doingtaskcontent').id = new_id + '_doingtask';
-    document.getElementById(new_id + '_doingtask').value = contentOfTask;
+    document.getElementById(new_id + '_doingtask').innerText = contentOfTask;
     document.getElementById('delete').id = new_id + '_deletedoingtask';
     document.getElementById('check').id = new_id + '_iconcheck';
     document.getElementById('inputcontent').id = new_id + '_inputcontent';
@@ -204,10 +204,10 @@ function setNewIdForTask(new_id, contentOfTask){
     // double click input
     document.getElementById(new_id + '_inputcontent').ondblclick = function (ev) {
         if(lastEdit != 0) {
-            // document.getElementById(lastEdit + '_doingtask').setAttribute('disabled', 'disabled');
+            // document.getElementById(lastEdit + '_doingtask').setAttribute('contenteditable', 'contenteditable');
             updateTask(lastEdit + '_doingtask');
         }
-        document.getElementById(event.target.id).removeAttribute('disabled');
+        document.getElementById(event.target.id).setAttribute('contenteditable','');
         lastEdit = getId(event.target.id);
     };
 
@@ -228,14 +228,14 @@ function setNewIdForTask(new_id, contentOfTask){
 }
 
 function updateTask(fullid) {
-    if(document.getElementById(fullid).value === ''){
+    if(document.getElementById(fullid).innerText === ''){
         var id = getId(fullid);
         if(getItem(id).state === 'active') count_items_left--;
         checkItemsLeft();
 
         removeATask(fullid);
     } else {
-        document.getElementById(fullid).setAttribute('disabled', 'disabled');
+        document.getElementById(fullid).removeAttribute('contenteditable', '');
         lastEdit = 0;
     }
 }
@@ -335,13 +335,11 @@ function creatingNewElement(){
     i1.setAttribute('class', 'far fa-check-circle check');
     i1.setAttribute('id', 'check');
     var div3 = document.createElement('div');
-    div3.setAttribute('class', 'col2 inputcontent');
+    div3.setAttribute('class', 'col2 inputcontent pd-l-20');
     div3.setAttribute('id',  'inputcontent');
-    var input1 = document.createElement('input');
-    input1.setAttribute('class', 'w100 h90 fs-20 bgc-white border-w-0');
-    input1.setAttribute('id', 'doingtaskcontent');
-    input1.setAttribute('type', 'text');
-    input1.setAttribute('disabled', 'disabled');
+    var divinput = document.createElement('div');
+    divinput.setAttribute('class', 'w100 h90 fs-20 bgc-white border-w-0');
+    divinput.setAttribute('id', 'doingtaskcontent');
     var div4 = document.createElement('div');
     div4.setAttribute('class', 'ver-a-50 v-hidden');
     div4.setAttribute('id',  'hover');
@@ -350,7 +348,7 @@ function creatingNewElement(){
     i2.setAttribute('id', 'delete');
 
     div4.appendChild(i2);
-    div3.appendChild(input1);
+    div3.appendChild(divinput);
     div2.appendChild(i1);
     div1.appendChild(div2);
     div1.appendChild(div3);

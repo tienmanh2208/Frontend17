@@ -3,8 +3,9 @@ var tab = 'all' /*all, active, completed */, task = [];
 
 var task_html = '<div class="flex-row-nowrap newtask mg-t-10 border-square-rad">\n' +
     '               <div class="col1_sm ta-center fs-25 ver-a-50 fc-gray iconcheck"><i class="far fa-check-circle check"></i></div>\n' +
-    '               <div class="col2 inputcontent input">\n' +
-    '                    <input class="w100 h90 fs-20 doingtaskcontent bgc-white border-w-0" type="text" disabled>\n' +
+    '               <div class="col2 inputcontent input pd-l-20">\n' +
+    // '                    <input class="w100 h90 fs-20 doingtaskcontent bgc-white border-w-0" type="text" disabled>\n' +
+    '                    <div class="w90 h90 fs-20 doingtaskcontent bgc-white border-w-0"></div>\n' +
     '               </div>\n' +
     '               <div class="ver-a-50 hover_d v-hidden">\n' +
     '                    <i class="fas fa-times fs-20 delete icon_delete"></i>\n' +
@@ -187,7 +188,7 @@ function changeStateOfTask(id){
 function setNewIdForTask(new_id, contentOfTask, callback){
     $('.newtask').attr('id', new_id).removeClass('newtask');
     $('.doingtaskcontent').attr('id',new_id + '_doingtask');
-    $('#' + new_id + '_doingtask').removeClass('doingtaskcontent').val(contentOfTask);
+    $('#' + new_id + '_doingtask').removeClass('doingtaskcontent').text(contentOfTask);
     $('.delete').attr('id', new_id + '_deletedoingtask').removeClass('delete');
     $('.check').attr('id', new_id + '_iconcheck').removeClass('check');
     $('.inputcontent').attr('id', new_id + '_inputcontent').removeClass('inputcontent');
@@ -208,16 +209,16 @@ function setNewIdForTask(new_id, contentOfTask, callback){
     // double click input
     $('.input').dblclick(function () {
         if(lastEdit != 0) {
-            // $('#' + lastEdit + '_doingtask').attr('disabled', 'disabled');
+            // $('#' + lastEdit + '_doingtask').attr('contenteditable', 'contenteditable');
             updateTask(lastEdit + '_doingtask');
         }
         lastEdit = getId(event.target.id);
-        $('#' + event.target.id).removeAttr('disabled');
+        $('#' + event.target.id).attr('contenteditable','');
     });
 
     $('.input').keyup(function(e){
         if(e.keyCode === 13) { $(this).trigger("enterKey"); }
-    }).bind('enterKey', function(){updateTask(event.target.id)});
+    }).bind('enterKey', function(){updateTask(event.target.id); $('br').remove();});
 
     $('#' + new_id + '_deletedoingtask').click(function () {
         var id = getId(event.target.id);
@@ -234,14 +235,14 @@ function setNewIdForTask(new_id, contentOfTask, callback){
 }
 
 function updateTask(fullid){
-    if($('#' + fullid).val() == ''){
+    if($('#' + fullid).text() == ''){
         var id = getId(fullid);
         if(getItem(id).state === 'active') count_items_left--;
         checkItemsLeft();
 
         removeATask(fullid);
     } else {
-        $('#' + fullid).attr('disabled', 'disabled');
+        $('#' + fullid).removeAttr('contenteditable');
         lastEdit = 0;
     }
 }
