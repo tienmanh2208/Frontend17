@@ -1,10 +1,9 @@
-var count = 0, count_items_left = 0, isVisible = false, lastEdit = 0; // footer
-var tab = 'all' /*all, active, completed */, task = [];
+var count = 0, count_items_left = 0, isVisible = false, lastEdit = 0, usingLCS = false;// footer
+var tab = 'all' /*all, active, completed */, numberoftask = 0;
 
 var task_html = '<div class="flex-row-nowrap newtask mg-t-10 border-square-rad">\n' +
     '               <div class="col1_sm ta-center fs-25 ver-a-50 fc-gray iconcheck"><i class="far fa-check-circle check"></i></div>\n' +
     '               <div class="col2 inputcontent input pd-l-20">\n' +
-    // '                    <input class="w100 h90 fs-20 doingtaskcontent bgc-white border-w-0" type="text" disabled>\n' +
     '                    <div class="w90 h90 fs-20 doingtaskcontent bgc-white border-w-0"></div>\n' +
     '               </div>\n' +
     '               <div class="ver-a-50 hover_d v-hidden">\n' +
@@ -13,7 +12,9 @@ var task_html = '<div class="flex-row-nowrap newtask mg-t-10 border-square-rad">
     '           </div>';
 
 $(document).ready(function () {
-    $('.footer').hide();
+    checkLocalData();
+    // removeAllTask();
+
     $('#newtask').keyup(function(e){
         if(e.keyCode === 13) { $(this).trigger("enterKey"); }
     }).bind('enterKey', function () {
@@ -22,7 +23,7 @@ $(document).ready(function () {
             count_items_left++;
             checkItemsLeft();
             if(tab === 'active') $('#changeall').removeClass('v-hidden');
-            if(task.length !== 0) $('.footer').show();
+            if(JSON.parse(localStorage.Task).length !== 0) $('.footer').show();
         }
     });
     
@@ -44,23 +45,26 @@ $(document).ready(function () {
         reloadAllTaskIsDone('content');
         changeBorder('completed');
 
-        if(count_items_left === task.length) $('#changeall').addClass('v-hidden');
+        if(count_items_left === JSON.parse(localStorage.Task).length) $('#changeall').addClass('v-hidden');
         else $('#changeall').removeClass('v-hidden');
     });
 
     $('#changeall').click(function () {
-        if(count_items_left === 0) {
-            count_items_left = task.length;
-            for(var i = 0 ; i < task.length; ++i){
-                task[i].state = 'active'
-            }
-            if(tab === 'completed') $('#changeall').addClass('v-hidden');
-        } else {
-            count_items_left = 0;
-            for(var i = 0 ; i < task.length; ++i){
-                 task[i].state = 'completed'
-            }
+        if(count_items_left === 0 || tab === 'completed') {
+            var arr = JSON.parse(localStorage.Task);
+            count_items_left = arr.length;
 
+            arr.map(function (value, i) { arr[i].state = 'active'; })
+
+            localStorage.Task = JSON.stringify(arr);
+
+            if(tab === 'completed') $('#changeall').addClass('v-hidden');
+        } else if(tab !== 'completed') {
+            var arr = JSON.parse(localStorage.Task);
+            count_items_left = 0;
+            arr.map(function (value, i) { arr[i].state = 'completed'; })
+
+            localStorage.Task = JSON.stringify(arr);
             if(tab === 'active') $('#changeall').addClass('v-hidden');
         }
 
@@ -70,11 +74,8 @@ $(document).ready(function () {
     });
     
     $('#clear').click(function () {
-        for(var i = task.length-1 ; i >= 0; --i){
-            if(task[i].state === 'completed'){
-                removeATask(task[i].id + '_abc');
-            }
-        }
+        var task = JSON.parse(localStorage.Task);
+        task.map(function (value, i) { if(task[i].state === 'completed') removeATask(task[i].id + '_abc') })
 
         if(task.length === 0) { $('.footer').hide(); isVisible = false; }
     });
@@ -91,7 +92,7 @@ function setInfo(){
         state: 'active'
     };
 
-    task.push(new_task);
+    addNewTask(new_task);
 
     if(tab != 'completed'){
         $('#content').append(task_html);
@@ -118,48 +119,26 @@ function getId(id){
 }
 
 /**
- * this function removes element in an specified array
- * @param id
- * @param array
- */
-function removeAElement(array, id){
-    for(var i = 0 ; i < array.length; ++i){
-        if(array[i].id === id)
-            array.splice(i, 1);
-    }
-}
-
-/**
  * This function removes a task with specified id
- * @param id
+ * @param id id contains '_'
  */
 function removeATask(id){
     var id_e = getId(id);
-
-    removeAElement(task, id_e);
+    removeItemOnObject(id_e);
     removeDivElement(id_e);
 }
 
 /**
  * this function checks there are any items left or not
  */
-function checkItemsLeft(){
-    // if(count_items_left == 0){ $('.footer').hide(); }
-    $('#count').text(count_items_left + ' items');
-}
-
-/**
- * this function returns a Task object contain { id, content, state }
- * @param id
- */
-function getItem(id) { for(var i = 0 ; i < task.length; ++i) if(task[i].id === id) return task[i]; }
+function checkItemsLeft(){ $('#count').text(count_items_left + ' items');}
 
 /**
  * this funtion will change the display of a task. if it is complete, the text will be seted line-through
- * @param id
+ * @param id {number}
  */
 function changeStateOfTask(id){
-    var item = getItem(id);
+    var item = findingItemFromObject(id);
     if(item.state === 'active'){
         $('#' + id + '_doingtask').addClass('f-s');
         $('#' + id + '_iconcheck_div').removeClass('fc-gray').addClass('fc-green');
@@ -168,7 +147,6 @@ function changeStateOfTask(id){
         checkItemsLeft();
     }
     else {
-        // $('#' + id + '_doingtask').addClass('check');
         $('#' + id + '_doingtask').removeClass('f-s');
         $('#' + id + '_iconcheck_div').removeClass('fc-green').addClass('fc-gray');
         item.state = 'active';
@@ -176,6 +154,7 @@ function changeStateOfTask(id){
         checkItemsLeft();
     }
 
+    changeItemOnObject(id,item);
     if(tab === 'active') removeDivElement(id);
     else if(tab === 'completed') removeDivElement(id);
 }
@@ -184,6 +163,7 @@ function changeStateOfTask(id){
  * this function will set id for all the tag of new Task
  * @param new_id
  * @param contentOfTask
+ * @param callback
  */
 function setNewIdForTask(new_id, contentOfTask, callback){
     $('.newtask').attr('id', new_id).removeClass('newtask');
@@ -216,19 +196,17 @@ function setNewIdForTask(new_id, contentOfTask, callback){
         $('#' + event.target.id).attr('contenteditable','');
     });
 
-    $('.input').keyup(function(e){
-        if(e.keyCode === 13) { $(this).trigger("enterKey"); }
+    $('.input').keyup(function(e){ if(e.keyCode === 13) { $(this).trigger("enterKey"); }
     }).bind('enterKey', function(){updateTask(event.target.id); $('br').remove();});
 
     $('#' + new_id + '_deletedoingtask').click(function () {
         var id = getId(event.target.id);
-
-        if(getItem(id).state === 'active') count_items_left--;
+        if(findingItemFromObject(id).state === 'active') count_items_left--;
         checkItemsLeft();
 
         removeATask(event.target.id);
 
-        if(task.length === 0) { $('.footer').hide(); isVisible = false; }
+        if(JSON.parse(localStorage.Task).length === 0) { $('.footer').hide(); isVisible = false; }
     });
 
     if(callback) { callback; }
@@ -237,7 +215,8 @@ function setNewIdForTask(new_id, contentOfTask, callback){
 function updateTask(fullid){
     if($('#' + fullid).text() == ''){
         var id = getId(fullid);
-        if(getItem(id).state === 'active') count_items_left--;
+        if(findingItemFromObject(id).state === 'active') count_items_left--;
+        lastEdit = 0;
         checkItemsLeft();
 
         removeATask(fullid);
@@ -254,15 +233,17 @@ function updateTask(fullid){
 function reloadAllTask(id){
     $('#' + id).slideUp(500, 'swing', function(){
         $('#' + id).empty();
+        var task = JSON.parse(localStorage.Task);
 
-        for(var i = 0; i < task.length; ++i){
+        task.map(function (currentValue, i) {
             $('#' + id).append(task_html);
             setNewIdForTask(task[i].id, task[i].content);
             if(task[i].state === 'completed'){
                 $('#' + task[i].id + '_doingtask').addClass('f-s');
                 $('#' + task[i].id + '_iconcheck_div').removeClass('fc-gray').addClass('fc-green');
             }
-        }
+        });
+
         checkItemsLeft();
         $('#' + id).slideDown();
     });
@@ -275,13 +256,14 @@ function reloadAllTask(id){
 function reloadAllDoingTask(id){
     $('#' + id).slideUp(500, 'swing', function() {
         $('#' + id).empty();
+        var task = JSON.parse(localStorage.Task);
 
-        for(var i = 0; i < task.length; ++i){
+        task.map(function (value, i) {
             if(task[i].state === 'active'){
                 $('#' + id).append(task_html);
                 setNewIdForTask(task[i].id, task[i].content);
             }
-        }
+        })
 
         checkItemsLeft();
         $('#' + id).slideDown();
@@ -295,15 +277,16 @@ function reloadAllDoingTask(id){
 function reloadAllTaskIsDone(id){
     $('#' + id).slideUp(500, 'swing', function(){
         $('#' + id).empty();
+        var task = JSON.parse(localStorage.Task);
 
-        for(var i = 0; i < task.length; ++i){
+        task.map(function (value, i) {
             if(task[i].state === 'completed'){
                 $('#' + id).append(task_html);
                 setNewIdForTask(task[i].id, task[i].content);
                 $('#' + task[i].id + '_doingtask').addClass('f-s');
                 $('#' + task[i].id + '_iconcheck_div').removeClass('fc-gray').addClass('fc-green');
             }
-        }
+        })
 
         checkItemsLeft();
         $('#' + id).slideDown();
@@ -329,3 +312,87 @@ function changeBorder(desTab){
  * @param id
  */
 function removeDivElement(id) { $('#' + id).slideUp('fast', 'swing', function(){ $('#' + id).remove(); }); }
+
+/**
+ * this function removes an item from localStorage.Task
+ * @param id {number}
+ */
+function removeItemOnObject(id) {
+    var task = JSON.parse(localStorage.Task);
+    task.map(function (value, i) { if(task[i].id === id) { task.splice(i, 1); } });
+
+    localStorage.Task = JSON.stringify(task);
+}
+
+/**
+ * This funtion will find an item with specified id in localStorage.Task.
+ * @param id {number}
+ * @return {object} contain { id, content, state }
+ */
+function findingItemFromObject(id){
+    var task = JSON.parse(localStorage.Task);
+    console.log(task);
+    console.log(id);
+    var returnValue;
+    task.map(function (value, i) { if(task[i].id === id) returnValue = task[i]; })
+    return returnValue;
+}
+
+/**
+ * this function will change the properties of an specified item in localStorage.Task
+ * @param id {number}
+ * @param obj contain id, content, state
+ */
+function changeItemOnObject(id, obj){
+    var task = JSON.parse(localStorage.Task);
+
+    task.map(function (value, i) { if(task[i].id === id) { task[i] = obj; } })
+    localStorage.Task = JSON.stringify(task);
+};
+
+/**
+ * this function is going to check if a specified id forms a form
+ * @param id
+ * @return {boolean}
+ */
+function checkIdItem(id){ if(id.indexOf('_obj') !== -1) return true; return false; }
+
+/**
+ * this function checks whether this webTodoList are using the local storage
+ */
+function checkLocalData(){
+    if( localStorage.Task === undefined) {
+        $('.footer').hide();
+        localStorage.Task = JSON.stringify([]);
+    } else {
+        var task = JSON.parse(localStorage.Task);
+        if(task.length === 0) $('.footer').hide();
+        reloadAllTask('content');
+        $('#changeall').removeClass('v-hidden');
+        countItemsLeft(task);
+        count = task[task.length - 1].id;
+    }
+}
+
+/**
+ * coungting all the items have its state is active
+ * @param array
+ */
+function countItemsLeft(array){
+    array.map(function (value, i) { if(array[i].state === 'active') count_items_left++; })
+}
+
+/**
+ * adding a new task
+ * @param obj contain id, content, state
+ */
+function addNewTask(obj){
+    var task = JSON.parse(localStorage.Task);
+    task.push(obj);
+    localStorage.Task = JSON.stringify(task);
+}
+
+/**
+ * this function removes Task property of localStorage Object
+ */
+function removeAllTask() { delete localStorage['Task']; };
