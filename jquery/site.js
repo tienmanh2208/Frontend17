@@ -126,6 +126,7 @@ function removeATask(id){
     var id_e = getId(id);
     removeItemOnObject(id_e);
     removeDivElement(id_e);
+    if(JSON.parse(localStorage.Task).length === 0){ $('.footer').hide(); isVisible = false; }
 }
 
 /**
@@ -331,8 +332,6 @@ function removeItemOnObject(id) {
  */
 function findingItemFromObject(id){
     var task = JSON.parse(localStorage.Task);
-    console.log(task);
-    console.log(id);
     var returnValue;
     task.map(function (value, i) { if(task[i].id === id) returnValue = task[i]; })
     return returnValue;
@@ -370,7 +369,8 @@ function checkLocalData(){
         reloadAllTask('content');
         $('#changeall').removeClass('v-hidden');
         countItemsLeft(task);
-        count = task[task.length - 1].id;
+        if(task.length !== 0) count = task[task.length - 1].id;
+        else count = 0;
     }
 }
 
